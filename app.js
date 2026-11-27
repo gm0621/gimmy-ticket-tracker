@@ -21,6 +21,7 @@ const elements = Object.fromEntries([...document.querySelectorAll("[id]")].map(n
 const views = [...document.querySelectorAll("[data-view]")];
 const shortcuts = [...document.querySelectorAll("button[data-filter]")];
 const viewCards = [...document.querySelectorAll("button[data-card-view]")];
+const filterOptions = elements.filter.querySelectorAll("option[data-filter-scope]");
 const cellDate = value => {
   const parts = String(value ?? "").match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
   return parts ? [parts[1], parts[2].padStart(2, "0"), parts[3].padStart(2, "0")].join("-") : "";
@@ -59,13 +60,19 @@ function shiftDate(date, days) {
   return day.toISOString().slice(0, 10);
 }
 
-function highlights(row, today, weekEnd) {
+function startOfWeek(today) {
+  const weekday = new Date(today).getUTCDay();
+  return shiftDate(today, -((weekday + 6) % 7));
+}
+
+function highlights(row, today, weekEnd, monday) {
   return {
     due: !row.done && row.end === reportDeadline,
     dec: !row.done && row.start.startsWith("2026-12-"),
     late: !row.done && Boolean(row.end) && row.end < today,
     today: !row.done && row.end === today,
     week: !row.done && row.end > today && row.end <= weekEnd,
+    "done-week": row.done >= monday && row.done <= today,
   };
 }
 
@@ -140,11 +147,13 @@ function renderGroup(shown, all, today) {
   item.colSpan = 3;
   const toggle = make("button", "", "group-toggle");
   toggle.type = "button";
-  toggle.setAttribute("aria-label", first.id + " " + title);
   toggle.setAttribute("aria-controls", children.map(row => row.id).join(" "));
   const indicator = make("span", "", "group-indicator");
   indicator.setAttribute("aria-hidden", "true");
-  toggle.append(indicator, make("span", title));
+  const toggleText = make("span");
+  const action = make("span", "", "group-action");
+  toggleText.append(make("span", title), action);
+  toggle.append(indicator, toggleText);
   item.append(toggle);
 
   const due = make("td", "", "date");
@@ -161,6 +170,8 @@ function renderGroup(shown, all, today) {
   summary.append(ticket, item, due, progress);
 
   function setExpanded(expanded) {
+    action.textContent = expanded ? "收合明細" : "展開明細";
+    toggle.setAttribute("aria-label", first.id + " " + title + " " + action.textContent);
     toggle.setAttribute("aria-expanded", String(expanded));
     for (const child of children) child.hidden = !expanded;
   }
@@ -178,7 +189,8 @@ function render() {
   const today = dateFormat.format(new Date());
   renderedDate = today;
   const weekEnd = shiftDate(today, 7);
-  const entries = rows.map(row => ({ row, flags: highlights(row, today, weekEnd) }));
+  const monday = startOfWeek(today);
+  const entries = rows.map(row => ({ row, flags: highlights(row, today, weekEnd, monday) }));
   const totals = {
     open: rows.filter(row => !row.done).length,
     due: entries.filter(({ flags }) => flags.due).length,
@@ -187,6 +199,7 @@ function render() {
     late: entries.filter(({ flags }) => flags.late).length,
     today: entries.filter(({ flags }) => flags.today).length,
     week: entries.filter(({ flags }) => flags.week).length,
+    "done-week": entries.filter(({ flags }) => flags["done-week"]).length,
   };
   for (const [key, count] of Object.entries(totals)) {
     const counter = elements[key + "-count"];
@@ -194,7 +207,7 @@ function render() {
   }
   const term = elements.search.value.trim().toLocaleLowerCase("zh-TW");
   const filter = elements.filter.value;
-  shortcuts.forEach(button => button.setAttribute("aria-pressed", String(view === "open" && button.dataset.filter === filter)));
+  shortcuts.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.filter === filter)));
   viewCards.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.cardView === view && !filter)));
   const shown = entries.filter(({ row, flags }) =>
     (view === "all" || (view === "open" ? !row.done : Boolean(row.done))) &&
@@ -250,8 +263,10 @@ async function refresh() {
 function selectView(nextView, filter = "") {
   view = nextView;
   views.forEach(control => control.setAttribute("aria-pressed", String(control.dataset.view === view)));
+  for (const option of filterOptions) {
+    option.hidden = option.disabled = view !== "all" && option.dataset.filterScope !== view;
+  }
   elements.filter.value = filter;
-  elements.filter.disabled = view === "done";
   render();
 }
 
@@ -263,7 +278,7 @@ viewCards.forEach(button => button.addEventListener("click", () => {
 shortcuts.forEach(button => button.addEventListener("click", () => {
   const filter = button.getAttribute("aria-pressed") === "true" ? "" : button.dataset.filter;
   elements.search.value = "";
-  selectView("open", filter);
+  selectView(button.dataset.filterView || "open", filter);
 }));
 elements.search.addEventListener("input", render);
 elements.filter.addEventListener("change", render);

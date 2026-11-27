@@ -34,9 +34,8 @@ h1 { margin: 0; font-size: clamp(2rem, 4.1vw, 3.5rem); letter-spacing: -.045em; 
 .sync button { white-space: nowrap; color: var(--blue); background: var(--white); border: 1px solid #bdcbe1; padding: .45rem .85rem; border-radius: 8px; }
 .sync button:disabled { opacity: .55; cursor: progress; }
 .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9rem; margin-bottom: 1.6rem; }
-.metrics:has(+ .deadline-metrics) { margin-bottom: .75rem; }
-.deadline-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.deadline-metrics .metric strong { font-size: clamp(1.5rem, 2.8vw, 2rem); }
+.metrics:has(+ .date-metrics) { margin-bottom: .75rem; }
+.date-metrics .metric strong { font-size: clamp(1.5rem, 2.8vw, 2rem); }
 .metric { display: grid; padding: .85rem 1rem; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
 .metric span { font-weight: 650; }
 .metric strong { font-size: clamp(1.75rem, 3.5vw, 2.55rem); font-variant-numeric: tabular-nums; letter-spacing: -.045em; line-height: 1.22; margin-top: .32rem; }
@@ -47,6 +46,7 @@ button.metric.due { color: var(--due); }
 button.metric.future { color: var(--purple); }
 button.metric.overdue { color: #a0242d; background: #fcebed; border-color: #f1ced4; }
 button.metric.upcoming { color: var(--green); background: var(--green-bg); border-color: #cde7dc; }
+button.metric.completed { color: #225476; background: #e7f3fc; border-color: #cce4f6; }
 button.metric span { text-decoration: underline; text-underline-offset: .2em; }
 button.metric:hover { border-color: currentColor; }
 button.metric[aria-pressed="true"] { border-color: currentColor; box-shadow: inset 0 0 0 1px currentColor; }
@@ -89,6 +89,7 @@ tbody tr.future-row td:first-child { box-shadow: inset 3px 0 #8a6bbd; }
   font-weight: 720;
 }
 .group-toggle:hover, .group-toggle[aria-expanded="true"] { color: var(--blue); }
+.group-action { display: block; color: var(--blue); font-size: .875rem; font-weight: 650; }
 .group-indicator {
   display: grid;
   place-items: center;
@@ -125,8 +126,7 @@ footer { padding: 1rem 0 2.2rem; color: var(--muted); font-size: .875rem; }
   .intro { flex-direction: column; align-items: flex-start; }
   .sync { flex-wrap: wrap; }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
-  .deadline-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .deadline-metrics .metric { padding: .65rem; }
+  .date-metrics .metric { padding: .65rem; }
   .toolbar, .table-meta { padding-inline: .75rem; }
   .search { flex: 1 1 100%; }
   .top a { font-size: .875rem; white-space: nowrap; }
