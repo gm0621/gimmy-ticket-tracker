@@ -110,6 +110,11 @@ tbody tr.future-row td:first-child { box-shadow: inset 3px 0 #8a6bbd; }
 .ticket-link { white-space: nowrap; font-size: .9rem; font-weight: 720; font-variant-numeric: tabular-nums; }
 .item { font-weight: 650; }
 .subtask { display: block; margin-top: .14rem; color: var(--muted); font-size: .9375rem; }
+.task-follow-up { display: grid; gap: .25rem; margin: .55rem 0 0; font-size: .875rem; }
+.task-follow-up div { display: grid; grid-template-columns: 3.65rem minmax(0, 1fr); gap: .4rem; }
+.task-follow-up dt { color: var(--muted); font-weight: 650; }
+.task-follow-up dd { margin: 0; overflow-wrap: anywhere; white-space: pre-line; }
+.task-follow-up .unset { color: var(--muted); }
 .person, .date { white-space: nowrap; font-size: .9rem; }
 .date { font-variant-numeric: tabular-nums; }
 .tags { display: flex; flex-wrap: wrap; gap: .35rem; min-width: 8.25rem; }
