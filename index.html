@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Gimmy 的 7.0.102 工單進度、到期項目與已完成工作。">
   <title>Gimmy 工單進度</title>
-  <link rel="stylesheet" href="./style.css">
-  <script type="module" src="./app.js"></script>
+  <link rel="stylesheet" href="./style.css?v=7464606">
+  <script type="module" src="./app.js?v=7464606"></script>
 </head>
 <body>
   <header class="top"><div class="frame top-inner">
@@ -49,7 +49,7 @@
       </div>
       <div class="table-scroll" tabindex="0" role="region" aria-label="工單表，可橫向捲動">
         <table>
-          <thead><tr><th scope="col">工單</th><th scope="col">項目／子任務</th><th scope="col">負責／參與</th><th scope="col">預計開始</th><th scope="col">預計結束</th><th scope="col">進度</th></tr></thead>
+          <thead><tr><th scope="col">工單</th><th scope="col">項目／子任務</th><th scope="col">負責／參與</th><th scope="col">預計開始</th><th scope="col" id="end-heading">預計結束</th><th scope="col">進度</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
