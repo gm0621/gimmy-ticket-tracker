@@ -84,7 +84,9 @@ h1 { margin: 0; font-size: clamp(1.65rem, 2.7vw, 2.15rem); letter-spacing: -.04e
 .search input::placeholder { color: var(--muted); }
 .table-meta { font-size: .875rem; color: var(--muted); padding-block: .5rem; }
 .table-meta p { margin: 0; }
+.table-filters { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .75rem; }
 .filter { display: flex; align-items: center; gap: .5rem; }
+#confirmation { max-width: min(14rem, 68vw); }
 select { appearance: none; padding-right: 2rem; background: linear-gradient(45deg, transparent 50%, #53647d 50%) right 14px center / 5px 5px no-repeat, linear-gradient(135deg, #53647d 50%, transparent 50%) right 9px center / 5px 5px no-repeat; }
 .ticket-list { border-radius: 0 0 14px 14px; overflow: clip; }
 .ticket-table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; }

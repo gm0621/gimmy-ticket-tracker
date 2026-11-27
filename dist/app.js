@@ -250,6 +250,37 @@ function renderGroup(shown, all, today) {
   return [summary, details];
 }
 
+const emptyConfirmations = new Set(["", "無", "未填", "不適用", "-", "—", "n/a"]);
+function confirmationNames(value = "") {
+  return value.split(/[、,，;；\r\n]+/).map(name => name.trim())
+    .filter(name => !emptyConfirmations.has(name.toLocaleLowerCase("zh-TW")));
+}
+
+function confirmationKey(name) {
+  return "person:" + name.toLocaleLowerCase("zh-TW");
+}
+
+function updateConfirmationOptions() {
+  const menu = elements.confirmation;
+  if (!menu) return;
+  const selected = menu.value;
+  const people = new Map();
+  for (const row of rows) {
+    if (row.done) continue;
+    for (const name of confirmationNames(row.confirmation)) {
+      const key = confirmationKey(name);
+      if (!people.has(key)) people.set(key, name);
+    }
+  }
+  if (selected.startsWith("person:") && !people.has(selected)) {
+    people.set(selected, menu.selectedOptions[0].textContent);
+  }
+  const options = [...people].sort((a, b) => a[1].localeCompare(b[1], "zh-TW"))
+    .map(([key, name]) => new Option(name, key));
+  menu.replaceChildren(...[...menu.options].slice(0, 2), ...options);
+  menu.value = selected;
+}
+
 function render() {
   const today = dateFormat.format(new Date());
   renderedDate = today;
@@ -272,11 +303,14 @@ function render() {
   }
   const term = elements.search.value.trim().toLocaleLowerCase("zh-TW");
   const filter = elements.filter.value;
+  const confirmation = elements.confirmation?.value;
   shortcuts.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.filter === filter)));
-  viewCards.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.cardView === view && !filter)));
+  viewCards.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.cardView === view && !filter && !confirmation)));
   const shown = entries.filter(({ row, flags }) =>
     (view === "all" || (view === "open" ? !row.done : Boolean(row.done))) &&
     (!filter || flags[filter]) &&
+    (!confirmation || (!row.done && confirmationNames(row.confirmation).some(name =>
+      confirmation === "waiting" || confirmationKey(name) === confirmation))) &&
     (!term || [row.id, row.item, row.task, row.owner, row.member].some(value => value.toLocaleLowerCase("zh-TW").includes(term)))
   );
   shown.sort((a, b) => view === "done"
@@ -289,7 +323,7 @@ function render() {
   elements.rows.replaceChildren(...[...shownGroups].flatMap(([id, group]) => renderGroup(group, allGroups.get(id), today)));
   if (!shown.length) {
     const tr = make("tr");
-    const td = make("td", "沒有符合的工單。", "empty");
+    const td = make("td", confirmation ? "沒有符合的待確認子任務。" : "沒有符合的工單。", "empty");
     td.colSpan = 4;
     tr.append(td);
     elements.rows.append(tr);
@@ -321,6 +355,7 @@ async function refresh(background = false) {
     syncFailed = false;
     if (changed) {
       rows = nextRows;
+      updateConfirmationOptions();
       render();
     }
   } catch {
@@ -336,17 +371,20 @@ async function refresh(background = false) {
 
 function selectView(nextView, filter = "") {
   view = nextView;
+  if (view !== "open" && elements.confirmation) elements.confirmation.value = "";
   views.forEach(control => control.setAttribute("aria-pressed", String(control.dataset.view === view)));
   for (const option of filterOptions) {
     option.hidden = option.disabled = view !== "all" && option.dataset.filterScope !== view;
   }
   elements.filter.value = filter;
+  updateConfirmationOptions();
   render();
 }
 
 views.forEach(button => button.addEventListener("click", () => selectView(button.dataset.view)));
 viewCards.forEach(button => button.addEventListener("click", () => {
   elements.search.value = "";
+  if (elements.confirmation) elements.confirmation.value = "";
   selectView(button.dataset.cardView);
 }));
 shortcuts.forEach(button => button.addEventListener("click", () => {
@@ -356,6 +394,13 @@ shortcuts.forEach(button => button.addEventListener("click", () => {
 }));
 elements.search.addEventListener("input", render);
 elements.filter.addEventListener("change", render);
+elements.confirmation?.addEventListener("change", () => {
+  if (elements.confirmation.value && view !== "open") selectView("open");
+  else {
+    updateConfirmationOptions();
+    render();
+  }
+});
 elements.refresh.addEventListener("click", () => refresh());
 document.addEventListener("visibilitychange", () => {
   trackTaipeiDate();
@@ -364,5 +409,6 @@ document.addEventListener("visibilitychange", () => {
 setInterval(() => {
   if (!document.hidden) refresh(true);
 }, 60_000);
+updateConfirmationOptions();
 trackTaipeiDate();
 refresh();

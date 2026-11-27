@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Gimmy 的 7.0.102 工單進度、到期項目與已完成工作。">
   <title>Gimmy 工單進度</title>
-  <link rel="stylesheet" href="./style.css?v=task-sheet-jump">
-  <script type="module" src="./app.js?v=task-sheet-jump"></script>
+  <link rel="stylesheet" href="./style.css?v=confirmation-filter">
+  <script type="module" src="./app.js?v=confirmation-filter"></script>
 </head>
 <body>
   <header class="top"><div class="frame top-inner">
@@ -44,17 +44,25 @@
       </div>
       <div class="table-meta">
         <p id="result" aria-live="polite"></p>
-        <label class="filter">追蹤重點
-          <select id="filter">
-            <option value="">全部</option>
-            <option value="due" data-filter-scope="open">11/30 到期</option>
-            <option value="dec" data-filter-scope="open">12 月排定開始</option>
-            <option value="late" data-filter-scope="open">已逾期</option>
-            <option value="today" data-filter-scope="open">今天到期</option>
-            <option value="week" data-filter-scope="open">未來 7 天到期</option>
-            <option value="done-week" data-filter-scope="done" hidden disabled>本週完成</option>
-          </select>
-        </label>
+        <div class="table-filters">
+          <label class="filter">追蹤重點
+            <select id="filter">
+              <option value="">全部</option>
+              <option value="due" data-filter-scope="open">11/30 到期</option>
+              <option value="dec" data-filter-scope="open">12 月排定開始</option>
+              <option value="late" data-filter-scope="open">已逾期</option>
+              <option value="today" data-filter-scope="open">今天到期</option>
+              <option value="week" data-filter-scope="open">未來 7 天到期</option>
+              <option value="done-week" data-filter-scope="done" hidden disabled>本週完成</option>
+            </select>
+          </label>
+          <label class="filter">待確認
+            <select id="confirmation">
+              <option value="">不限確認人</option>
+              <option value="waiting">所有待確認</option>
+            </select>
+          </label>
+        </div>
       </div>
       <div class="ticket-list" role="region" aria-label="工單表">
         <table class="ticket-table" role="table">
