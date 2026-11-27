@@ -151,6 +151,7 @@ select { appearance: none; padding-right: 2rem; background: linear-gradient(45de
 .task-title:hover { color: var(--blue); text-decoration: underline; }
 .task-meta { display: flex; flex-wrap: wrap; gap: .1rem .55rem; margin-top: .2rem; color: var(--muted); }
 .task-meta span + span::before { content: "·"; margin-inline-end: .55rem; }
+.task-sheet-link { white-space: nowrap; font-weight: 650; }
 .task-context { margin-inline-start: .5rem; color: #425a79; }
 .task-field-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .task-field-value { display: block; overflow-wrap: anywhere; white-space: pre-line; }
