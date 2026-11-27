@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Gimmy 的 7.0.102 工單進度、到期項目與已完成工作。">
   <title>Gimmy 工單進度</title>
-  <link rel="stylesheet" href="./style.css?v=compact-header">
-  <script type="module" src="./app.js?v=task-follow-up"></script>
+  <link rel="stylesheet" href="./style.css?v=compact-details">
+  <script type="module" src="./app.js?v=compact-details"></script>
 </head>
 <body>
   <header class="top"><div class="frame top-inner">
@@ -56,10 +56,10 @@
           </select>
         </label>
       </div>
-      <div class="table-scroll" tabindex="0" role="region" aria-label="工單表，可橫向捲動">
-        <table>
-          <thead><tr><th scope="col">工單</th><th scope="col">項目／子任務</th><th scope="col">負責／參與</th><th scope="col">預計開始</th><th scope="col" id="end-heading">預計結束</th><th scope="col">進度</th></tr></thead>
-          <tbody id="rows"></tbody>
+      <div class="ticket-list" role="region" aria-label="工單表">
+        <table class="ticket-table" role="table">
+          <thead role="rowgroup"><tr role="row"><th scope="col">工單</th><th scope="col">項目</th><th scope="col" id="end-heading">下一個到期日</th><th scope="col">已完成／總數</th></tr></thead>
+          <tbody id="rows" role="rowgroup"></tbody>
         </table>
       </div>
     </section>
