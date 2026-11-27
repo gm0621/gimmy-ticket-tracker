@@ -102,10 +102,14 @@ function make(tag, value, className) {
   return node;
 }
 
+function worksheetRange(rowNumber, firstColumn, lastColumn) {
+  return source + "&range=" + firstColumn + rowNumber + ":" + lastColumn + rowNumber;
+}
+
 function ticketLink(row, label = row.id, className = "ticket-link") {
   const link = make("a", label, className);
   const ticketNumber = row.ticketUrl?.match(/\/(\d+)\/?$/)?.[1];
-  link.href = row.ticketUrl || source + "&range=A" + row.row + ":O" + row.row;
+  link.href = row.ticketUrl || worksheetRange(row.row, "A", "O");
   link.title = row.ticketUrl ? "2.86 工單" : "試算表原始列";
   if (ticketNumber) link.title += " #" + ticketNumber;
   link.target = "_blank";
@@ -132,6 +136,12 @@ function renderTask(row, flags, today, groupTitle, previousItem) {
     schedule.title = "原訂排程 " + displayDate(row.start) + " 至 " + displayDate(row.end);
     meta.append(schedule);
   }
+  const sheetLink = make("a", "跳到試算表", "task-sheet-link");
+  sheetLink.href = worksheetRange(row.row, "M", "O");
+  sheetLink.target = "_blank";
+  sheetLink.rel = "noopener";
+  sheetLink.setAttribute("aria-label", "跳到試算表：" + (row.task || row.item));
+  meta.append(sheetLink);
   overview.append(meta);
 
   const task = make("li", "", "detail-row");
