@@ -8,7 +8,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-12",
     "end": "2026-12-31",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/13384"
   },
   {
     "row": 17,
@@ -19,7 +20,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-12",
     "end": "2026-12-31",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/13383"
   },
   {
     "row": 18,
@@ -30,7 +32,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-12",
     "end": "2026-12-31",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/13382"
   },
   {
     "row": 20,
@@ -41,7 +44,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-12",
     "end": "2026-12-31",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/13368"
   },
   {
     "row": 21,
@@ -52,7 +56,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-12",
     "end": "2026-12-31",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/13365"
   },
   {
     "row": 22,
@@ -63,7 +68,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-12",
     "end": "2026-12-31",
-    "done": "2026-10-30"
+    "done": "2026-10-30",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/13363"
   },
   {
     "row": 48,
@@ -74,7 +80,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-03-01",
     "end": "2027-02-28",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/13381"
   },
   {
     "row": 49,
@@ -85,7 +92,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-08-07",
     "end": "2026-10-09",
-    "done": "2026-10-09"
+    "done": "2026-10-09",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 50,
@@ -96,7 +104,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-01",
     "end": "2026-10-09",
-    "done": "2026-10-09"
+    "done": "2026-10-09",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 51,
@@ -107,7 +116,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-01",
     "end": "2026-10-09",
-    "done": "2026-10-09"
+    "done": "2026-10-09",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 52,
@@ -118,7 +128,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-10-26",
     "end": "2026-10-30",
-    "done": "2026-10-30"
+    "done": "2026-10-30",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 53,
@@ -129,7 +140,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-02",
     "end": "2026-11-13",
-    "done": "2026-11-13"
+    "done": "2026-11-13",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 54,
@@ -140,7 +152,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-12-01",
     "end": "2026-12-11",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 55,
@@ -151,7 +164,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-12-07",
     "end": "2026-12-18",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 56,
@@ -162,7 +176,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-16",
     "end": "2026-11-23",
-    "done": "2026-11-20"
+    "done": "2026-11-20",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 57,
@@ -173,7 +188,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-18",
     "end": "2026-11-23",
-    "done": "2026-11-23"
+    "done": "2026-11-23",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 58,
@@ -184,7 +200,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-18",
     "end": "2026-11-27",
-    "done": "2026-11-23"
+    "done": "2026-11-23",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 59,
@@ -195,7 +212,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-18",
     "end": "2026-11-27",
-    "done": "2026-11-23"
+    "done": "2026-11-23",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 60,
@@ -206,7 +224,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-18",
     "end": "2026-11-27",
-    "done": "2026-11-23"
+    "done": "2026-11-23",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 61,
@@ -217,7 +236,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-25",
     "end": "2026-11-30",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 62,
@@ -228,7 +248,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-25",
     "end": "2026-11-30",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 63,
@@ -239,7 +260,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-25",
     "end": "2026-11-30",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 64,
@@ -250,7 +272,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-25",
     "end": "2026-11-30",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 65,
@@ -261,7 +284,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-25",
     "end": "2026-11-30",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 66,
@@ -272,7 +296,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-12-01",
     "end": "2026-12-31",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 67,
@@ -283,7 +308,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-12-01",
     "end": "2026-12-31",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 68,
@@ -294,7 +320,8 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-12-01",
     "end": "2026-12-07",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/19210"
   },
   {
     "row": 69,
@@ -305,6 +332,7 @@ export const snapshot = [
     "owner": "Gimmy",
     "start": "2026-11-25",
     "end": "2026-11-30",
-    "done": ""
+    "done": "",
+    "ticketUrl": "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/13139"
   }
 ];
