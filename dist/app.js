@@ -8,6 +8,7 @@ const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei", d
 const timeFormat = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
 const elements = Object.fromEntries([...document.querySelectorAll("[id]")].map(node => [node.id, node]));
 const views = [...document.querySelectorAll("[data-view]")];
+const shortcuts = [...document.querySelectorAll("button[data-filter]")];
 const cellDate = value => {
   const parts = String(value ?? "").match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
   return parts ? [parts[1], parts[2].padStart(2, "0"), parts[3].padStart(2, "0")].join("-") : "";
@@ -89,6 +90,7 @@ function render() {
   for (const [key, count] of Object.entries(totals)) elements[key + "-count"].textContent = count;
   const term = elements.search.value.trim().toLocaleLowerCase("zh-TW");
   const filter = elements.filter.value;
+  shortcuts.forEach(button => button.setAttribute("aria-pressed", String(view === "open" && button.dataset.filter === filter)));
   const shown = entries.filter(({ row, flags }) =>
     (view === "all" || (view === "open" ? !row.done : Boolean(row.done))) &&
     (!filter || flags[filter]) &&
@@ -129,12 +131,19 @@ async function refresh() {
   }
 }
 
-views.forEach(button => button.addEventListener("click", () => {
-  view = button.dataset.view;
-  views.forEach(control => control.setAttribute("aria-pressed", String(control === button)));
-  elements.filter.value = "";
+function selectView(nextView, filter = "") {
+  view = nextView;
+  views.forEach(control => control.setAttribute("aria-pressed", String(control.dataset.view === view)));
+  elements.filter.value = filter;
   elements.filter.disabled = view === "done";
   render();
+}
+
+views.forEach(button => button.addEventListener("click", () => selectView(button.dataset.view)));
+shortcuts.forEach(button => button.addEventListener("click", () => {
+  const filter = button.getAttribute("aria-pressed") === "true" ? "" : button.dataset.filter;
+  elements.search.value = "";
+  selectView("open", filter);
 }));
 elements.search.addEventListener("input", render);
 elements.filter.addEventListener("change", render);
