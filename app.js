@@ -3,12 +3,24 @@ import { snapshot } from "./snapshot.js";
 const workbook = "https://docs.google.com/spreadsheets/d/16L_dB4jd_NTfzB31MR9omKmNgDjbFf8MfU_GtvIJ-oo";
 const source = workbook + "/edit#gid=1685660058";
 const endpoint = workbook + "/gviz/tq?gid=1685660058&range=A1:L&headers=1&tqx=out:json";
+const ticketBase = "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/";
+const ticketNumbers = new Map([
+  ["RD2509036", 13384],
+  ["RD2511004", 13383],
+  ["RD2511005", 13382],
+  ["RD2511009", 13381],
+  ["RD2602033", 13368],
+  ["RD2603014", 13365],
+  ["RD2604003", 13363],
+  ["RD2609021", 13139],
+]);
 const reportDeadline = "2026-11-30";
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei", dateStyle: "short" });
 const timeFormat = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
 const elements = Object.fromEntries([...document.querySelectorAll("[id]")].map(node => [node.id, node]));
 const views = [...document.querySelectorAll("[data-view]")];
 const shortcuts = [...document.querySelectorAll("button[data-filter]")];
+const viewCards = [...document.querySelectorAll("button[data-card-view]")];
 const cellDate = value => {
   const parts = String(value ?? "").match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
   return parts ? [parts[1], parts[2].padStart(2, "0"), parts[3].padStart(2, "0")].join("-") : "";
@@ -55,7 +67,9 @@ function make(tag, value, className) {
 
 function renderRow(row, flags, today) {
   const link = make("a", row.id, "ticket-link");
-  link.href = source + "&range=A" + row.row + ":H" + row.row;
+  const ticketNumber = ticketNumbers.get(row.id);
+  link.href = ticketNumber ? ticketBase + ticketNumber : source + "&range=A" + row.row + ":H" + row.row;
+  link.title = ticketNumber ? "2.86 工單 #" + ticketNumber : "試算表原始列";
   link.target = "_blank";
   link.rel = "noopener";
   const ticket = make("td");
@@ -91,6 +105,7 @@ function render() {
   const term = elements.search.value.trim().toLocaleLowerCase("zh-TW");
   const filter = elements.filter.value;
   shortcuts.forEach(button => button.setAttribute("aria-pressed", String(view === "open" && button.dataset.filter === filter)));
+  viewCards.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.cardView === view && !filter)));
   const shown = entries.filter(({ row, flags }) =>
     (view === "all" || (view === "open" ? !row.done : Boolean(row.done))) &&
     (!filter || flags[filter]) &&
@@ -140,6 +155,10 @@ function selectView(nextView, filter = "") {
 }
 
 views.forEach(button => button.addEventListener("click", () => selectView(button.dataset.view)));
+viewCards.forEach(button => button.addEventListener("click", () => {
+  elements.search.value = "";
+  selectView(button.dataset.cardView);
+}));
 shortcuts.forEach(button => button.addEventListener("click", () => {
   const filter = button.getAttribute("aria-pressed") === "true" ? "" : button.dataset.filter;
   elements.search.value = "";
