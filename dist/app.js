@@ -1,4 +1,4 @@
-import { snapshot } from "./snapshot.js";
+import { snapshot } from "./snapshot.js?v=sheet-ticket-links";
 
 const workbook = "https://docs.google.com/spreadsheets/d/16L_dB4jd_NTfzB31MR9omKmNgDjbFf8MfU_GtvIJ-oo";
 const source = workbook + "/edit#gid=1685660058";
