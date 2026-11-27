@@ -27,6 +27,7 @@ const cellDate = value => {
 };
 const displayDate = date => date ? date.replaceAll("-", "/") : "—";
 const shortDate = date => date.split("-").slice(1).map(Number).join("/");
+const expandedTickets = new Set();
 let rows = snapshot;
 let view = "open";
 let refreshing = false;
@@ -65,15 +66,19 @@ function make(tag, value, className) {
   return node;
 }
 
-function renderRow(row, flags, today) {
+function ticketLink(row) {
   const link = make("a", row.id, "ticket-link");
   const ticketNumber = ticketNumbers.get(row.id);
   link.href = ticketNumber ? ticketBase + ticketNumber : source + "&range=A" + row.row + ":H" + row.row;
   link.title = ticketNumber ? "2.86 工單 #" + ticketNumber : "試算表原始列";
   link.target = "_blank";
   link.rel = "noopener";
+  return link;
+}
+
+function renderRow(row, flags, today) {
   const ticket = make("td");
-  ticket.append(link);
+  ticket.append(ticketLink(row));
   const item = make("td");
   item.append(make("span", row.item, "item"));
   if (row.task) item.append(make("span", row.task, "subtask"));
@@ -87,9 +92,75 @@ function renderRow(row, flags, today) {
   }
   const progress = make("td");
   progress.append(tags);
-  const tr = make("tr", "", flags.due ? "due-row" : flags.dec ? "future-row" : "");
+  const tr = make("tr", "", "detail-row");
+  tr.id = "task-" + row.row;
+  if (flags.due) tr.classList.add("due-row");
+  if (flags.dec) tr.classList.add("future-row");
   tr.append(ticket, item, make("td", (row.owner || "—") + " / " + (row.member || "—"), "person"), make("td", displayDate(row.start), "date"), make("td", displayDate(row.end), "date"), progress);
   return tr;
+}
+
+function groupByTicket(entries) {
+  const groups = new Map();
+  for (const entry of entries) {
+    const id = entry.row.id;
+    if (!groups.has(id)) groups.set(id, []);
+    groups.get(id).push(entry);
+  }
+  return groups;
+}
+
+function renderGroup(shown, all, today) {
+  const first = shown[0].row;
+  const titles = [...new Set(all.map(({ row }) => row.item))];
+  const prefix = titles[0].split(" - ")[0];
+  const title = titles.every(item => item.split(" - ")[0] === prefix) && titles.length > 1
+    ? prefix
+    : titles.join("／");
+  const pending = all.flatMap(({ row }) => !row.done && row.end ? [row.end] : []).sort();
+  const nextDue = pending.find(date => date >= today);
+  const overdue = pending.filter(date => date < today);
+  const completed = all.filter(({ row }) => row.done).length;
+  const children = shown.map(({ row, flags }) => renderRow(row, flags, today));
+
+  const ticket = make("td");
+  ticket.append(ticketLink(first));
+  const item = make("td");
+  item.colSpan = 3;
+  const toggle = make("button", "", "group-toggle");
+  toggle.type = "button";
+  toggle.setAttribute("aria-label", first.id + " " + title);
+  toggle.setAttribute("aria-controls", children.map(row => row.id).join(" "));
+  const indicator = make("span", "", "group-indicator");
+  indicator.setAttribute("aria-hidden", "true");
+  toggle.append(indicator, make("span", title));
+  item.append(toggle);
+
+  const due = make("td", "", "date");
+  due.append(make("span", "下一個到期日", "group-label"), make("span", displayDate(nextDue)));
+  if (overdue.length) {
+    due.append(make("span", "逾期 " + overdue.length + " 筆", "tag late group-overdue"));
+  }
+  const progress = make("td");
+  progress.append(
+    make("span", "已完成／總數", "group-label"),
+    make("strong", completed + " / " + all.length, "group-count"),
+  );
+  const summary = make("tr", "", "group-row");
+  summary.append(ticket, item, due, progress);
+
+  function setExpanded(expanded) {
+    toggle.setAttribute("aria-expanded", String(expanded));
+    for (const child of children) child.hidden = !expanded;
+  }
+  setExpanded(expandedTickets.has(first.id));
+  toggle.addEventListener("click", () => {
+    const expanded = !expandedTickets.has(first.id);
+    if (expanded) expandedTickets.add(first.id);
+    else expandedTickets.delete(first.id);
+    setExpanded(expanded);
+  });
+  return [summary, ...children];
 }
 
 function render() {
@@ -114,9 +185,11 @@ function render() {
   shown.sort((a, b) => view === "done"
     ? b.row.done.localeCompare(a.row.done) || a.row.row - b.row.row
     : (a.row.end || "9999").localeCompare(b.row.end || "9999") || a.row.row - b.row.row);
-  elements["end-heading"].setAttribute("aria-sort", view === "done" ? "none" : "ascending");
-  elements.result.textContent = shown.length + " 筆・" + (view === "done" ? "依實際結束日由新到舊" : "依預計結束日由近到遠");
-  elements.rows.replaceChildren(...shown.map(({ row, flags }) => renderRow(row, flags, today)));
+  const allGroups = groupByTicket(entries);
+  const shownGroups = groupByTicket(shown);
+  const order = view === "done" ? "依篩選結果的實際結束日由新到舊" : "依篩選結果的預計結束日由近到遠";
+  elements.result.textContent = shownGroups.size + " 張工單・" + shown.length + " 筆明細・" + order;
+  elements.rows.replaceChildren(...[...shownGroups].flatMap(([id, group]) => renderGroup(group, allGroups.get(id), today)));
   if (!shown.length) {
     const tr = make("tr");
     const td = make("td", "沒有符合的工單。", "empty");
