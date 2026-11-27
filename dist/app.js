@@ -31,6 +31,8 @@ const expandedTickets = new Set();
 let rows = snapshot;
 let view = "open";
 let refreshing = false;
+let renderedDate;
+let dateTimer;
 
 document.querySelector("[data-source]").href = source;
 
@@ -51,11 +53,19 @@ function parseFeed(payload) {
   });
 }
 
-function highlights(row, today) {
+function shiftDate(date, days) {
+  const day = new Date(date);
+  day.setUTCDate(day.getUTCDate() + days);
+  return day.toISOString().slice(0, 10);
+}
+
+function highlights(row, today, weekEnd) {
   return {
     due: !row.done && row.end === reportDeadline,
     dec: !row.done && row.start.startsWith("2026-12-"),
     late: !row.done && Boolean(row.end) && row.end < today,
+    today: !row.done && row.end === today,
+    week: !row.done && row.end > today && row.end <= weekEnd,
   };
 }
 
@@ -84,7 +94,8 @@ function renderRow(row, flags, today) {
   if (row.task) item.append(make("span", row.task, "subtask"));
   const tags = make("div", "", "tags");
   if (row.done) tags.append(make("span", shortDate(row.done) + " 完成", "tag done"));
-  if (flags.due) tags.append(make("span", "11/30 到期", "tag due"));
+  if (flags.today) tags.append(make("span", "今天到期", "tag due"));
+  else if (flags.due) tags.append(make("span", "11/30 到期", "tag due"));
   if (flags.dec) tags.append(make("span", "12 月排定開始", "tag future"));
   if (flags.late) tags.append(make("span", "已逾期", "tag late"));
   if (!tags.childElementCount) {
@@ -165,14 +176,22 @@ function renderGroup(shown, all, today) {
 
 function render() {
   const today = dateFormat.format(new Date());
-  const entries = rows.map(row => ({ row, flags: highlights(row, today) }));
+  renderedDate = today;
+  const weekEnd = shiftDate(today, 7);
+  const entries = rows.map(row => ({ row, flags: highlights(row, today, weekEnd) }));
   const totals = {
     open: rows.filter(row => !row.done).length,
     due: entries.filter(({ flags }) => flags.due).length,
     dec: entries.filter(({ flags }) => flags.dec).length,
     done: rows.filter(row => row.done).length,
+    late: entries.filter(({ flags }) => flags.late).length,
+    today: entries.filter(({ flags }) => flags.today).length,
+    week: entries.filter(({ flags }) => flags.week).length,
   };
-  for (const [key, count] of Object.entries(totals)) elements[key + "-count"].textContent = count;
+  for (const [key, count] of Object.entries(totals)) {
+    const counter = elements[key + "-count"];
+    if (counter) counter.textContent = count;
+  }
   const term = elements.search.value.trim().toLocaleLowerCase("zh-TW");
   const filter = elements.filter.value;
   shortcuts.forEach(button => button.setAttribute("aria-pressed", String(view === "open" && button.dataset.filter === filter)));
@@ -197,6 +216,15 @@ function render() {
     tr.append(td);
     elements.rows.append(tr);
   }
+}
+
+function trackTaipeiDate() {
+  const now = new Date();
+  const today = dateFormat.format(now);
+  if (today !== renderedDate) render();
+  clearTimeout(dateTimer);
+  const midnight = new Date(shiftDate(today, 1) + "T00:00:00+08:00");
+  dateTimer = setTimeout(trackTaipeiDate, midnight - now);
 }
 
 async function refresh() {
@@ -240,5 +268,6 @@ shortcuts.forEach(button => button.addEventListener("click", () => {
 elements.search.addEventListener("input", render);
 elements.filter.addEventListener("change", render);
 elements.refresh.addEventListener("click", refresh);
-render();
+document.addEventListener("visibilitychange", trackTaipeiDate);
+trackTaipeiDate();
 refresh();

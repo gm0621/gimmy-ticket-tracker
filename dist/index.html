@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Gimmy 的 7.0.102 工單進度、到期項目與已完成工作。">
   <title>Gimmy 工單進度</title>
-  <link rel="stylesheet" href="./style.css?v=7464606">
-  <script type="module" src="./app.js?v=7464606"></script>
+  <link rel="stylesheet" href="./style.css?v=deadline-cards">
+  <script type="module" src="./app.js?v=deadline-cards"></script>
 </head>
 <body>
   <header class="top"><div class="frame top-inner">
@@ -27,6 +27,11 @@
       <button class="metric future" type="button" data-filter="dec" aria-pressed="false" aria-controls="rows"><span>12 月排定開始</span><strong id="dec-count">–</strong></button>
       <button class="metric" type="button" data-card-view="done" aria-pressed="false" aria-controls="rows"><span>已完成項目</span><strong id="done-count">–</strong></button>
     </section>
+    <section class="metrics deadline-metrics" aria-label="依台北日期篩選到期工單">
+      <button class="metric overdue" type="button" data-filter="late" aria-pressed="false" aria-controls="rows"><span>已逾期</span><strong id="late-count">–</strong></button>
+      <button class="metric due" type="button" data-filter="today" aria-pressed="false" aria-controls="rows"><span>今天到期</span><strong id="today-count">–</strong></button>
+      <button class="metric upcoming" type="button" data-filter="week" aria-pressed="false" aria-controls="rows"><span>未來 7 天到期</span><strong id="week-count">–</strong></button>
+    </section>
     <section class="board" aria-label="工單明細">
       <div class="toolbar">
         <div class="views" aria-label="工單檢視">
@@ -43,7 +48,9 @@
             <option value="">全部</option>
             <option value="due">11/30 到期</option>
             <option value="dec">12 月排定開始</option>
-            <option value="late">已逾預計結束日</option>
+            <option value="late">已逾期</option>
+            <option value="today">今天到期</option>
+            <option value="week">未來 7 天到期</option>
           </select>
         </label>
       </div>
@@ -54,7 +61,7 @@
         </table>
       </div>
     </section>
-    <footer>已完成／總數以整張工單的明細計算。有實際結束日的項目列為已完成。紅色逾期標記依台北日期判定。11/30 與 12 月標記對應 2026 年 11 月 27 日的報告。</footer>
+    <footer>到期篩選依台北日期判定。未來 7 天從明天起算。已完成／總數以整張工單的明細計算。有實際結束日的項目列為已完成。11/30 與 12 月標記對應 2026 年 11 月 27 日的報告。</footer>
   </main>
 </body>
 </html>
