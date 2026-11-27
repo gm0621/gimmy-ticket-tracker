@@ -2,7 +2,7 @@ import { snapshot } from "./snapshot.js";
 
 const workbook = "https://docs.google.com/spreadsheets/d/16L_dB4jd_NTfzB31MR9omKmNgDjbFf8MfU_GtvIJ-oo";
 const source = workbook + "/edit#gid=1685660058";
-const endpoint = workbook + "/gviz/tq?gid=1685660058&range=A1:L&headers=1&tqx=out:json";
+const endpoint = workbook + "/gviz/tq?gid=1685660058&range=A1:N&headers=1&tqx=out:json";
 const ticketBase = "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/";
 const ticketNumbers = new Map([
   ["RD2509036", 13384],
@@ -46,11 +46,19 @@ function parseFeed(payload) {
   if (response.status !== "ok" || !expected.every((name, i) => response.table?.cols?.[i]?.label === name)) {
     throw new Error("Unexpected sheet columns");
   }
+  const headers = response.table.cols.map(column => column.label?.trim());
+  const confirmationColumn = headers.indexOf("待確認");
+  const nextStepColumn = headers.indexOf("下一步");
   return response.table.rows.flatMap(({ c }, index) => {
     const values = c.map(cell => String(cell?.f ?? cell?.v ?? "").trim());
     const [id, member, item, task, owner, startDate, endDate, doneDate] = values;
-    if (!id || !item || !values.some(value => /gimmy/i.test(value))) return [];
-    return [{ row: index + 2, id, member, item, task, owner, start: cellDate(startDate), end: cellDate(endDate), done: cellDate(doneDate) }];
+    if (!id || !item || !values.slice(0, 12).some(value => /gimmy/i.test(value))) return [];
+    return [{
+      row: index + 2, id, member, item, task, owner,
+      start: cellDate(startDate), end: cellDate(endDate), done: cellDate(doneDate),
+      confirmation: values[confirmationColumn] ?? "",
+      nextStep: values[nextStepColumn] ?? "",
+    }];
   });
 }
 
@@ -99,6 +107,13 @@ function renderRow(row, flags, today) {
   const item = make("td");
   item.append(make("span", row.item, "item"));
   if (row.task) item.append(make("span", row.task, "subtask"));
+  const followUp = make("dl", "", "task-follow-up");
+  for (const [label, value] of [["待確認", row.confirmation], ["下一步", row.nextStep]]) {
+    const field = make("div");
+    field.append(make("dt", label), make("dd", value || "未填", value ? "" : "unset"));
+    followUp.append(field);
+  }
+  item.append(followUp);
   const tags = make("div", "", "tags");
   if (row.done) tags.append(make("span", shortDate(row.done) + " 完成", "tag done"));
   if (flags.today) tags.append(make("span", "今天到期", "tag due"));
