@@ -2,19 +2,7 @@ import { snapshot } from "./snapshot.js";
 
 const workbook = "https://docs.google.com/spreadsheets/d/16L_dB4jd_NTfzB31MR9omKmNgDjbFf8MfU_GtvIJ-oo";
 const source = workbook + "/edit#gid=1685660058";
-const endpoint = workbook + "/gviz/tq?gid=1685660058&range=A1:N&headers=1&tqx=out:json";
-const ticketBase = "https://192.168.2.86/ticket/422b495c460ae8a748b46fcbbd894ff9/#/Ticket/ticket/311/";
-const ticketNumbers = new Map([
-  ["RD2509036", 13384],
-  ["RD2511004", 13383],
-  ["RD2511005", 13382],
-  ["RD2511009", 13381],
-  ["RD2602033", 13368],
-  ["RD2603014", 13365],
-  ["RD2604003", 13363],
-  ["RD2608004", 19210],
-  ["RD2609021", 13139],
-]);
+const endpoint = workbook + "/gviz/tq?gid=1685660058&range=A1:O&headers=1&tqx=out:json";
 const reportDeadline = "2026-11-30";
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei", dateStyle: "short" });
 const timeFormat = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
@@ -33,10 +21,24 @@ const expandedTickets = new Set();
 let rows = snapshot;
 let view = "open";
 let refreshing = false;
+let syncFailed = false;
 let renderedDate;
 let dateTimer;
 
 document.querySelector("[data-source]").href = source;
+
+function ticketURL(value) {
+  try {
+    const link = new URL(value);
+    if (link.protocol === "https:" && link.host === "192.168.2.86" &&
+        !link.username && !link.password && link.pathname.startsWith("/ticket/")) {
+      return link.href;
+    }
+  } catch {
+    // Missing or invalid URLs fall back to the sheet.
+  }
+  return "";
+}
 
 function parseFeed(payload) {
   const start = payload.indexOf("({");
@@ -50,8 +52,15 @@ function parseFeed(payload) {
   const headers = response.table.cols.map(column => column.label?.trim());
   const confirmationColumn = headers.indexOf("待確認");
   const nextStepColumn = headers.indexOf("下一步");
-  return response.table.rows.flatMap(({ c }, index) => {
-    const values = c.map(cell => String(cell?.f ?? cell?.v ?? "").trim());
+  const ticketColumn = headers.indexOf("2.86 工單網址");
+  const sheetRows = response.table.rows.map(({ c }) => c.map(cell => String(cell?.f ?? cell?.v ?? "").trim()));
+  const ticketLinks = new Map();
+  for (const values of sheetRows) {
+    if (!values[0] || ticketLinks.has(values[0]) || !values[ticketColumn]) continue;
+    const link = ticketURL(values[ticketColumn]);
+    if (link) ticketLinks.set(values[0], link);
+  }
+  return sheetRows.flatMap((values, index) => {
     const [id, member, item, task, owner, startDate, endDate, doneDate] = values;
     if (!id || !item || !values.slice(0, 12).some(value => /gimmy/i.test(value))) return [];
     return [{
@@ -59,6 +68,7 @@ function parseFeed(payload) {
       start: cellDate(startDate), end: cellDate(endDate), done: cellDate(doneDate),
       confirmation: values[confirmationColumn] ?? "",
       nextStep: values[nextStepColumn] ?? "",
+      ticketUrl: ticketLinks.get(id) ?? "",
     }];
   });
 }
@@ -94,25 +104,34 @@ function make(tag, value, className) {
 
 function ticketLink(row, label = row.id, className = "ticket-link") {
   const link = make("a", label, className);
-  const ticketNumber = ticketNumbers.get(row.id);
-  link.href = ticketNumber ? ticketBase + ticketNumber : source + "&range=A" + row.row + ":H" + row.row;
-  link.title = ticketNumber ? "2.86 工單 #" + ticketNumber : "試算表原始列";
+  const ticketNumber = row.ticketUrl?.match(/\/(\d+)\/?$/)?.[1];
+  link.href = row.ticketUrl || source + "&range=A" + row.row + ":O" + row.row;
+  link.title = row.ticketUrl ? "2.86 工單" : "試算表原始列";
+  if (ticketNumber) link.title += " #" + ticketNumber;
   link.target = "_blank";
   link.rel = "noopener";
   return link;
 }
 
-function renderTask(row, flags, today, groupTitle) {
+function renderTask(row, flags, today, groupTitle, previousItem) {
   const overview = make("div", "", "task-overview");
   overview.append(ticketLink(row, row.task || row.item, "task-title"));
-  if (row.task && row.item !== groupTitle) {
+  if (row.task && row.item !== groupTitle && row.item !== previousItem) {
     const prefix = groupTitle + " - ";
     const context = row.item.startsWith(prefix) ? row.item.slice(prefix.length) : row.item;
     overview.append(make("span", context, "task-context"));
   }
   const meta = make("div", "", "task-meta");
-  meta.append(make("span", "負責／參與 " + (row.owner || "—") + " / " + (row.member || "—")));
-  meta.append(make("span", "排程 " + displayDate(row.start) + " 至 " + displayDate(row.end)));
+  if (row.owner) meta.append(make("span", "負責 " + row.owner));
+  if (row.member && row.member !== row.owner) meta.append(make("span", "參與 " + row.member));
+  if (row.start || row.end) {
+    const format = date => date && date.slice(0, 4) === today.slice(0, 4) ? shortDate(date) : displayDate(date);
+    const period = row.start && row.end ? format(row.start) + "–" + format(row.end)
+      : row.start ? format(row.start) + " 起" : "至 " + format(row.end);
+    const schedule = make("span", period);
+    schedule.title = "原訂排程 " + displayDate(row.start) + " 至 " + displayDate(row.end);
+    meta.append(schedule);
+  }
   overview.append(meta);
 
   const task = make("li", "", "detail-row");
@@ -172,7 +191,7 @@ function renderGroup(shown, all, today) {
   }
   const tasks = make("ul", "", "detail-list");
   tasks.setAttribute("role", "list");
-  tasks.append(...shown.map(({ row, flags }) => renderTask(row, flags, today, title)));
+  tasks.append(...shown.map(({ row, flags }, index) => renderTask(row, flags, today, title, shown[index - 1]?.row.item)));
   panel.append(headings, tasks);
   details.append(panel);
 
@@ -276,20 +295,29 @@ function trackTaipeiDate() {
   dateTimer = setTimeout(trackTaipeiDate, midnight - now);
 }
 
-async function refresh() {
+async function refresh(background = false) {
   if (refreshing) return;
   refreshing = true;
   elements.refresh.disabled = true;
-  elements["sync-state"].textContent = "正在讀取試算表…";
+  if (!background) elements["sync-state"].textContent = "正在讀取試算表…";
   try {
     const response = await fetch(endpoint, { cache: "no-store", credentials: "omit", signal: AbortSignal.timeout(12000) });
     if (!response.ok) throw new Error("Sheet request failed");
-    rows = parseFeed(await response.text());
-    const time = timeFormat.format(new Date());
-    elements["sync-state"].textContent = "已同步 Google 試算表・" + time;
-    render();
+    const nextRows = parseFeed(await response.text());
+    const changed = JSON.stringify(rows) !== JSON.stringify(nextRows);
+    if (!background || changed || syncFailed) {
+      elements["sync-state"].textContent = "已同步 Google 試算表・" + timeFormat.format(new Date());
+    }
+    syncFailed = false;
+    if (changed) {
+      rows = nextRows;
+      render();
+    }
   } catch {
-    elements["sync-state"].textContent = rows === snapshot ? "同步暫時失敗，顯示 11/27 的報告版本" : "同步暫時失敗，保留上次成功讀取的資料";
+    if (!background || !syncFailed) {
+      elements["sync-state"].textContent = rows === snapshot ? "同步暫時失敗，顯示 11/27 的報告版本" : "同步暫時失敗，保留上次成功讀取的資料";
+    }
+    syncFailed = true;
   } finally {
     refreshing = false;
     elements.refresh.disabled = false;
@@ -318,7 +346,13 @@ shortcuts.forEach(button => button.addEventListener("click", () => {
 }));
 elements.search.addEventListener("input", render);
 elements.filter.addEventListener("change", render);
-elements.refresh.addEventListener("click", refresh);
-document.addEventListener("visibilitychange", trackTaipeiDate);
+elements.refresh.addEventListener("click", () => refresh());
+document.addEventListener("visibilitychange", () => {
+  trackTaipeiDate();
+  if (!document.hidden) refresh(true);
+});
+setInterval(() => {
+  if (!document.hidden) refresh(true);
+}, 60_000);
 trackTaipeiDate();
 refresh();
